@@ -19,7 +19,7 @@ jobs:
           retry-delay: 5s
 
       - name: Slack Notification (on failure)
-        if: failure()
+        if: always()
         uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
