@@ -1,0 +1,29 @@
+name: "Server Health Check"
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # 매 5분마다 실행
+  workflow_dispatch:        # 수동 실행도 가능하게 설정
+
+jobs:
+  healthcheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Health Check - My Server
+        id: health
+        uses: jtalk/url-health-check-action@v3
+        with:
+          url: https://kiraeb.kira.or.kr/main.do  # ✅ 여기에 검사할 주소 입력
+          max-attempts: 3
+          retry-delay: 5s
+
+      - name: Slack Notification (on failure)
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: GitHub Actions Health Check
+          fields: repo,message,commit,action,eventName,ref,workflow,job,took
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEB_HOOK_URL }}
